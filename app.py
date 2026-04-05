@@ -147,23 +147,34 @@ with col2:
     venue = st.selectbox("🏟️ Venue", venues, help="Select the match venue")
     target = st.number_input("🎯 Target Score", min_value=1, max_value=500, value=200, help="Target score to chase")
 
-# Additional inputs in 3-column layout
-# =====================================================================================
-# Three columns for remaining inputs:
-# - Current score
-# - Overs completed (with slider for precision)
-# - Wickets down
-# =====================================================================================
-col3, col4, col5 = st.columns(3)
+st.markdown("---")
+match_stage = st.radio(
+    "Match Status",
+    ("Match not started", "Match in progress"),
+    horizontal=True,
+    help="Choose if the match is still before start or already in progress."
+)
 
-with col3:
-    current_score = st.number_input("📊 Current Score", min_value=0, max_value=500, value=100, help="Current score of batting team")
+match_started = match_stage == "Match in progress"
 
-with col4:
-    overs_completed = st.slider("⏱️ Overs Completed", min_value=0.0, max_value=20.0, value=10.0, step=0.1, help="Overs completed so far")
+if match_started:
+    col3, col4, col5 = st.columns(3)
 
-with col5:
-    wickets_down = st.number_input("❌ Wickets Down", min_value=0, max_value=10, value=2, help="Number of wickets fallen")
+    with col3:
+        current_score = st.number_input("📊 Current Score", min_value=0, max_value=500, value=0, help="Current score of batting team.")
+
+    with col4:
+        overs_completed = st.slider("⏱️ Overs Completed", min_value=0.0, max_value=20.0, value=0.0, step=0.1, help="Overs completed so far.")
+
+    with col5:
+        wickets_down = st.number_input("❌ Wickets Down (optional)", min_value=0, max_value=10, value=0, help="Number of wickets fallen.")
+
+    st.info("Match in progress: please enter the current score, overs, and wickets.")
+else:
+    current_score = 0
+    overs_completed = 0.0
+    wickets_down = 0
+    st.info("Match has not started: prediction uses initial match conditions.")
 
 st.divider()
 
@@ -183,14 +194,11 @@ if predict_button:
     # =====================================================================================
     # Check for common user errors:
     # 1. Same team batting and bowling
-    # 2. Invalid overs (must be > 0 and < 20)
+    # 2. Invalid overs only when match has started
     # =====================================================================================
     if batting_team == bowling_team:
         st.error("❌ Batting team and bowling team cannot be the same!")
-    elif overs_completed == 0:
-        st.warning("⚠️ Overs completed cannot be zero. Using 0.1 for calculation.")
-        overs_completed = 0.1
-    elif overs_completed >= 20:
+    elif match_started and overs_completed >= 20:
         st.error("❌ Match cannot have 20 or more overs completed!")
     else:
         # Compute derived features
@@ -199,8 +207,19 @@ if predict_button:
         # - run_rate: Current scoring rate
         # - required_run_rate: Required scoring rate to win
         # =====================================================================================
-        run_rate = current_score / overs_completed
-        required_run_rate = (target - current_score) / (20 - overs_completed) if (20 - overs_completed) > 0 else 0
+        if match_started:
+            if overs_completed == 0:
+                st.warning("⚠️ Overs completed cannot be zero in an ongoing match. Using 0.1 for calculation.")
+                effective_overs = 0.1
+            else:
+                effective_overs = overs_completed
+
+            run_rate = current_score / effective_overs
+            required_run_rate = (target - current_score) / (20 - effective_overs) if (20 - effective_overs) > 0 else 0
+        else:
+            # Pre-match prediction uses starting conditions
+            run_rate = 0
+            required_run_rate = target / 20
 
         # Encode categorical variables
         # =====================================================================================
