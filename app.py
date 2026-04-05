@@ -240,9 +240,9 @@ if predict_button:
             'bowling_team_encoded': [bowling_team_encoded],
             'venue_encoded': [venue_encoded],
             'target': [target],
-            'current_score': [current_score],
-            'overs_completed': [overs_completed],
-            'wickets_down': [wickets_down],
+            'score': [current_score],
+            'overs': [overs_completed],
+            'wickets': [wickets_down],
             'run_rate': [run_rate],
             'required_run_rate': [required_run_rate]
         })
