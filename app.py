@@ -301,6 +301,6 @@ else:
 st.divider()
 st.markdown("""
     <p style="text-align: center; color: #FFD700;">
-    Built with ❤️ using Streamlit | Powered by Machine Learning
+    Built by Ganeshvar K S
     </p>
     """, unsafe_allow_html=True)
