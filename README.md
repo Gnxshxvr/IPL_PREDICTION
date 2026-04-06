@@ -1,5 +1,7 @@
 # 🏏 IPL Victory Predictor
 
+https://iplprediction-i25pns8kjsgxajv98xbmw3.streamlit.app/
+
 A sleek Streamlit web app that predicts IPL match win probabilities using machine learning. This app forecasts the likelihood of the batting team winning based on current match conditions.
 
 ## ✨ Highlights
